@@ -45,13 +45,15 @@ EC_G = 1;
 GC = 1;
 
 for i=1:T
-if(sigma_pS<sigma_0)Bt = 1;
-else Bt = 0;
+if(sigma_pS<sigma_0)Bt_pS = 1;
+else Bt_pS = 0;
 end
-if(sigma_pS>sigma_0)Bg = 1;
-else Bg = 0;
+if(sigma_pS>sigma_0)Bg_pS = 1;
+else Bg_pS = 0;
 end
-sigma_pS(i+1) = sigma_pS(i) + delta*((omega/2)*(kcat(sigma_pG, kcat_max, TL_G)*EC_G*(TL_G/(2*(PL_S+NS))) - kf(sigma_pS(i), kf_max)*PLac*R-kcat(sigma_tS, kcat_max, TL_G)*EC_S*(TL_G/(PL_S+NS))) + (h0/PL_S)*(tau*Bt-gamma*Bg));
+sigma_pS(i+1) = sigma_pS(i) + delta*((omega/2)*(kcat(sigma_pG, kcat_max, TL_G)*EC_G*(TL_G/(2*(PL_S+NS))) - kf(sigma_pS(i), kf_max)*PLac*R-kcat(sigma_tS, kcat_max, TL_G)*EC_S*(TL_G/(PL_S+NS))) + (h0/PL_S)*(tau*Bt_pS-gamma*Bg_pS));
+sigma_tS(i+1) = sigma_tS(i) + delta*((omega/2)*(kcat(sigma_tS, kcat_max, TL_S)*EC_G*(TL_G/(2*(PL_S+NS))) + (h0/PL_S)*(tau*Bt_pS-gamma*Bg_pS));
+
 end
 
 plot(sigma_pS);
