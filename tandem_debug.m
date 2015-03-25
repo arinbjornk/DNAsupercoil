@@ -13,7 +13,7 @@ end
 %plot(sigma);
 
 %% Tandem
-delta = 0.001;
+delta = 0.000001;
 T = 10000;
 h0 = 10.5;
 tau = 0.25;
@@ -33,10 +33,9 @@ k_w = 1;
 k_l = 0.02;
 k_r = 1;
 
-R = 1;
 R_tot = 1000;
-PLac = 11;
-PTet = 11;
+PLac_tot = 11;
+PTet_tot = 11;
 
 sigma_tS = -0.65;
 sigma_tG = -0.65;
@@ -47,7 +46,7 @@ MG = 0;
 EC_S = 0;
 EC_G = 0;
 k_seq = 0.1;
-ECGECS = 0.1;
+ECGECS = 0;
 
 for i=1:T
     
@@ -80,28 +79,30 @@ else Bg_tG = 0;
 end
 
 %R_tot(i) = R + EC_S(i) + EC_G(i) + ECGECS(i);
-PLac = PLac + EC_S(i) + ECGECS(i);
-PTet = PTet + EC_G(i) + ECGECS(i);
+PLac = PLac_tot - EC_S(i) + ECGECS(i);
+PTet = PTet_tot - EC_G(i) + ECGECS(i);
 
-sigma_tS(i+1) = sigma_tS(i) + delta*(-(omega/2)*(kcat(sigma_tS(i), kcat_max, TL_S)*EC_S(i) + (h0/TL_S)*(tau*Bt_tS-gamma*Bg_tS)));
-sigma_pG(i+1) = sigma_pG(i) + delta*(-(omega/2)*(kf(sigma_pG(i), kf_max)*PTet*(R_tot - (EC_S(i) + EC_G(i) + ECGECS(i))) + (h0/PL_G)*(tau*Bt_pG-gamma*Bg_pG)));
+sigma_tS(i+1) =  sigma_tS(i) + delta*(-(omega/2)*(kcat(sigma_tS(i), kcat_max, TL_S)*EC_S(i) ) + (h0/TL_S)*(tau*Bt_tS-gamma*Bg_tS) );
+sigma_pG(i+1) = sigma_pG(i) + delta*(-(omega/2)*(kf(sigma_pG(i), kf_max)*PTet*(R_tot - (EC_S(i) + EC_G(i) + ECGECS(i)))) + (h0/PL_G)*(tau*Bt_pG-gamma*Bg_pG));
 
-sigma_pS(i+1) = sigma_pS(i) + delta*((omega/2)*(kcat(sigma_pG(i), kcat_max, TL_G)*EC_G(i)*(TL_G/(2*(PL_S+NS))) - kf(sigma_pS(i), kf_max)*PLac*R-kcat(sigma_tS(i), kcat_max, TL_G)*EC_S(i)*(TL_G/(PL_S+NS))) + (h0/PL_S)*(tau*Bt_pS-gamma*Bg_pS));
-sigma_tG(i+1) = sigma_tG(i) + delta*(-(omega/2)*(kcat(sigma_tS(i), kcat_max, TL_S)*EC_G(i) + kcat(sigma_tG(i), kcat_max, TL_G)*EC_S(i)*(TL_S/(PL_S+NS+TL_G+TL_S)) + kf(sigma_pS(i), kf_max)*PLac*R*(PL_S/(2*(TL_G+NS))) + (h0/TL_S)*(tau*Bt_tG-gamma*Bg_tG)));
+sigma_pS(i+1) = sigma_pS(i) + delta*((omega/2)*(kcat(sigma_pG(i), kcat_max, TL_G)*EC_G(i)*(TL_G/(2*(PL_S+NS))) - kf(sigma_pS(i), kf_max)*PLac*(R_tot - (EC_S(i) + EC_G(i) + ECGECS(i)))-kcat(sigma_tS(i), kcat_max, TL_G)*EC_S(i)*(TL_G/(PL_S+NS))) + (h0/PL_S)*(tau*Bt_pS-gamma*Bg_pS));
+sigma_tG(i+1) = sigma_tG(i) + delta*(-(omega/2)*(kcat(sigma_tS(i), kcat_max, TL_S)*EC_G(i) + kcat(sigma_tG(i), kcat_max, TL_G)*EC_S(i)*(TL_S/(PL_S+NS+TL_G+TL_S)) + kf(sigma_pS(i), kf_max)*PLac*(R_tot - (EC_S(i) + EC_G(i) + ECGECS(i)))*(PL_S/(2*(TL_G+NS)))) + (h0/TL_S)*(tau*Bt_tG-gamma*Bg_tG));
 
 mS(i+1) = mS(i) + delta*(kcat(sigma_tS(i), kcat_max, TL_S)*EC_S(i)+k_w*ECGECS(i)-delta_m*mS(i));
 MG(i+1) = MG(i) + delta*(kcat(sigma_tG(i), kcat_max, TL_S)*EC_G(i)+k_w*ECGECS(i)-delta_m*MG(i));
-EC_S(i+1) = EC_S(i) + delta*(kf(sigma_pS(i), kf_max)*(R_tot - (EC_S(i) + EC_G(i) + ECGECS(i)))*(PLac-EC_S(i)-ECGECS(i))-(k_r+kcat(sigma_tS(i), kcat_max, TL_S))*EC_S(i));
-EC_G(i+1) = EC_G(i) + delta*(kf(sigma_pG(i), kf_max)*(R_tot - (EC_S(i) + EC_G(i) + ECGECS(i)))*(PTet-EC_G(i)-ECGECS(i))-(k_r+kcat(sigma_tG(i), kcat_max, TL_G)+k_seq+k_l)*EC_G(i));
+EC_S(i+1) = EC_S(i) + delta*(kf(sigma_pS(i), kf_max)*(R_tot - (EC_S(i) + EC_G(i) + ECGECS(i)))*PLac-(k_r+kcat(sigma_tS(i), kcat_max, TL_S))*EC_S(i));
+EC_G(i+1) = EC_G(i) + delta*(kf(sigma_pG(i), kf_max)*(R_tot - (EC_S(i) + EC_G(i) + ECGECS(i)))*PTet-(k_r+kcat(sigma_tG(i), kcat_max, TL_G)+kseq(sigma_tG)+k_l)*EC_G(i));
 ECGECS(i+1) = ECGECS(i) + delta*(k_l*EC_G(i) - k_w*ECGECS(i));
 
 X(i) = EC_S(i) + EC_G(i) + ECGECS(i);
+Y(i) = kcat(sigma_tS(i), kcat_max, TL_S);
 
 end
 figure;
 hold on;
 % plot(sigma_pS);
- plot(sigma_tS);
+plot(EC_S);
+%plot(MG);
 % legend('show')
 %plot(sigma_pG);
 %plot(sigma_tG);
