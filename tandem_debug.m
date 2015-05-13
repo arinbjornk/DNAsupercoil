@@ -13,8 +13,8 @@ end
 %plot(sigma);
 
 %% Tandem
-delta = 36;
-T = 400;
+delta = 3.6;
+T = 4000;
 h0 = 10.5;
 tau = 0.25;
 gamma = 0.5;
