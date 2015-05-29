@@ -1,37 +1,23 @@
-%% Test
-T = 100;
-h0 = 10.5;
-delta_LN = 5;
-TLs = 50;
-x = rand(T,1);
-sigma = zeros(T,1);
-
-for i=2:T
-   sigma(i) = sigma(i-1) + x(i)*(delta_LN*h0/TLs);
-end
-
-%plot(sigma);
-
 %% Tandem
 delta = 3.6;
-T = 4000;
+T = 4;
 h0 = 10.5;
 tau = 0.25;
 gamma = 0.5;
 sigma_0 = -0.65;
-delta_LN = 5;
+%delta_LN = 5;
 deg_m = 0.0001;
-omega = 10^5;%7.85*10^11;
+omega = 10^6; %7.85*10^11;
 TL_S = 141;
-TL_G = 50;
+TL_G = 38;
 PL_S = 40;
 PL_G = 44;
 NS = 50;
-kf_max = 10^4;
+kf_max = 10^-5;
 kcat_max = 5.4*10^5;
 k_w = 1;
 k_l = 0.02;
-k_r = 1;
+k_r = 0.01;
 
 sigma_tS = -0.65;
 sigma_tG = -0.65;
@@ -39,44 +25,16 @@ sigma_pS = -0.65;
 sigma_pG = -0.65;
 mS = 0;
 MG = 0;
-EC_S = 0.1*10^-9;
-EC_G = 0.1*10^-9;
 k_seq = 1;
-ECGECS = 0.1*10^-9;
+EC_S = 0; % 0.1*10^-9;
+EC_G = 0; %0.1*10^-9;
+ECGECS = 0; %0.1*10^-9;
 
 R_tot = 10^-6 - EC_S + EC_G + ECGECS;
-PLac_tot = 11*10^-9;% EC_S + ECGECS;
-PTet_tot = 11*10^-9;% EC_G + ECGECS;
+PLac_tot = 11*10^-9; % EC_S + ECGECS;
+PTet_tot = 11*10^-9; % EC_G + ECGECS;
 
 for i=1:T
-    
-% if(sigma_pS<sigma_0)Bt_pS = 1;
-% else Bt_pS = 0;
-% end
-% if(sigma_pS>sigma_0)Bg_pS = 1;
-% else Bg_pS = 0;
-% end
-% 
-% if(sigma_tS<=sigma_0)Bt_tS = 1;
-% else Bt_tS = 0;
-% end
-% if(sigma_tS>sigma_0)Bg_tS = 1;
-% else Bg_tS = 0;
-% end
-% 
-% if(sigma_pG<sigma_0)Bt_pG = 1;
-% else Bt_pG = 0;
-% end
-% if(sigma_pG>sigma_0)Bg_pG = 1;
-% else Bg_pG = 0;
-% end
-% 
-% if(sigma_tG<sigma_0)Bt_tG = 1;
-% else Bt_tG = 0;
-% end
-% if(sigma_tG>sigma_0)Bg_tG = 1;
-% else Bg_tG = 0;
-% end
 
 if(sigma_tS(i)>sigma_0)BtS = -gamma;
 else BtS = tau;
@@ -106,26 +64,34 @@ sigma_tG(i+1) = sigma_tG(i) + delta*( -(omega/2)*(kcat(sigma_tS(i), kcat_max, TL
 
 mS(i+1) = mS(i) + (delta)*(kcat(sigma_tS(i), kcat_max, TL_S)*EC_S(i)+k_w*ECGECS(i)-deg_m*mS(i));
 MG(i+1) = MG(i) + delta*(kcat(sigma_tG(i), kcat_max, TL_S)*EC_G(i)+k_w*ECGECS(i)-deg_m*MG(i));
-EC_S(i+1) = EC_S(i) ;%+ (delta/1)*(kf(sigma_pS(i), kf_max)*(R_tot - (EC_S(i) + EC_G(i) + ECGECS(i)))*PLac(i)-(k_r+kcat(sigma_tS(i), kcat_max, TL_S))*EC_S(i));
-EC_G(i+1) = EC_G(i) ;%+ (delta/1)*(kf(sigma_pG(i), kf_max)*(R_tot - (EC_S(i) + EC_G(i) + ECGECS(i)))*PTet(i)-(k_r+kcat(sigma_tG(i), kcat_max, TL_G)+kseq(sigma_tG(i))+k_l)*EC_G(i));
-ECGECS(i+1) = ECGECS(i) ;%+ (delta/1)*(k_l*EC_G(i) - k_w*ECGECS(i));
+EC_S(i+1) = EC_S(i) + (delta/1)*(kf(sigma_pS(i), kf_max)*(R_tot - (EC_S(i) + EC_G(i) + ECGECS(i)))*PLac(i)-(k_r+kcat(sigma_tS(i), kcat_max, TL_S))*EC_S(i));
+EC_G(i+1) = EC_G(i) + (delta/1)*(kf(sigma_pG(i), kf_max)*(R_tot - (EC_S(i) + EC_G(i) + ECGECS(i)))*PTet(i)-(k_r+kcat(sigma_tG(i), kcat_max, TL_G)+kseq(sigma_tG(i))+k_l)*EC_G(i));
+ECGECS(i+1) = ECGECS(i) + (delta/1)*(k_l*EC_G(i) - k_w*ECGECS(i));
 
 X(i) = EC_S(i) + EC_G(i) + ECGECS(i);
 Y(i) = kcat(sigma_tS(i), kcat_max, TL_S);
 
 end
-figure;
-hold on;
-%plot(Y);
-%plot(mS);
-plot(MG);
-% plot(sigma_tS);
-% plot(sigma_pG);
-% plot(sigma_pS);
-% plot(sigma_tG);
 
-%plot(EC_S);
-%plot(EC_G);
-%plot(ECGECS);
+figure;
+subplot(2,2,1);
+hold on;
+plot(mS);
+plot(MG);
+subplot(2,2,2);
+hold on;
+plot(sigma_tS);
+plot(sigma_pG);
+plot(sigma_pS);
+plot(sigma_tG);
+subplot(2,2,3);
+hold on;
+plot(EC_S);
+plot(EC_G);
+plot(ECGECS);
+subplot(2,2,4);
+hold on;
+plot(X);
+plot(Y);
 
 legend('show')
