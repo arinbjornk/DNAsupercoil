@@ -1,6 +1,6 @@
 function [ out ] = kseq( sigma  )
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+%function accompanies supercoilingGFPRFP.m
+
 s_0 = -0.65;
 
 if(sigma<s_0)

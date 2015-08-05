@@ -1,6 +1,5 @@
 function [ out ] = kf( sigma, max )
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+%function accompanies supercoilingGFPRFP.m
 
 out = max/(abs(sigma+0.65)+1);
 
